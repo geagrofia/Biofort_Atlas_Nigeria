@@ -1,0 +1,38 @@
+---
+title: "Preparing clean spatial data"
+format: html
+---
+
+# Introduction
+
+The spatial data will be loaded and saved as topoJSON files. These files include topology.
+
+The data will need to be cleaned before saving. This involves identifying gaps between polygons and sliver polygons, and then rectifying the polygons to ensure no gaps and no sliver polygons.
+
+The spatial data to be cleaned include the Nigerian state boundaries (which are an important reference layer for Nigeria) and the livelihood zones.
+
+# Loading the data
+
+
+
+```{r}
+
+```
+
+
+# Defining a CRS for Nigeria
+
+
+```{r}
+
+```
+
+
+# Changing CRS for cleaning
+
+
+```{r}
+
+```
+
+
