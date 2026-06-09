@@ -1,0 +1,254 @@
+---
+title: "Food basket - FEWS NET 2018"
+format: html
+bibliography: references.bib
+---
+
+```{r results='hide', warning=FALSE, echo=FALSE, message=FALSE}
+
+library(tidyverse)
+library(terra)
+library(tidyterra)
+library(readODS)
+library(ggplot2)
+library(NMdata)
+library(gglyph)
+
+source("E:/repos/Biofort_Atlas_Nigeria/geom_tileglyph_function.R")
+
+```
+
+# Load the Livelihood Zones
+
+```{r}
+#| label: lz_zones
+#| message: false
+#| warning: false
+
+lz_geo <- vect("D:/DatosProyecto/SpatialData/Africa/Pais/Nigeria/FEWS NET LZ/NG_LHZ_2018/NG_LHZ_2018.shp")
+lz_geo$LZCODE <- as.factor(lz_geo$LZCODE)
+levels(lz_geo$LZCODE) # Check levels
+plot(lz_geo, main = "FEWS NET 2018 Livelihood Zones", levels=TRUE)
+
+ggplot(lz_geo)+
+  geom_spatvector(aes(fill = LZCODE)) +
+  geom_spatvector_text(aes(label = LZCODE), size = 3) +
+  theme_minimal()
+
+
+
+```
+
+# Load the food basket data
+
+```{r}
+#| label: food_basket
+#| message: false
+#| warning: false
+
+# lz_bo_op <- read.csv("D:/DatosProyecto/SpatialData/Africa/Pais/Nigeria/FEWS NET LZ/LZ_BO_OP.csv")
+
+# 2. Path to your file
+path <- "D:/DatosProyecto/SpatialData/Africa/Pais/Nigeria/FEWS NET LZ/LZ_Food_Basket.ods"
+
+# 3. Get the names of all sheets in the workbook
+sheet_names <- list_ods_sheets(path)
+
+# 4. Import all sheets into a list of data frames
+all_sheets <- lapply(sheet_names, function(x) read_ods(path, sheet = x))
+
+# 5. Name the list elements for easy access
+names(all_sheets) <- sheet_names
+
+# Now access a specific sheet like a data frame:
+# df <- all_sheets[["Sheet1"]]
+
+lz_bo_op <- all_sheets[["LZ_BO_OP"]]
+lz_bo_op[is.na(lz_bo_op)] <- 0
+
+```
+
+# Merge data and extract centroids
+
+```{r}
+#| label: merge
+#| message: false
+#| warning: false
+
+# Join CSV to SpatVector
+lz_geo <- merge(lz_geo, lz_bo_op, by = "LZCODE")
+
+# Extract centroids as a SpatVector
+lz_centroids <- centroids(lz_geo, inside=T)
+
+# Get centroid coordinates as a data frame
+lz_coords <- as.data.frame(geom(lz_centroids)[, c("x", "y")])
+
+# Convert the SpatVector attributes to a data frame
+df_lz_geo <- as.data.frame(lz_geo)
+
+# Combine: add centroid x and y to the attribute data frame
+df_lz_geo$centroid_x <- lz_coords$x
+df_lz_geo$centroid_y <- lz_coords$y
+
+```
+
+# Define glyph variables and produce plot
+
+```{r}
+#| label: fig-glyphtest
+#| message: false
+#| warning: false
+#| fig-cap: \'Better off\' household own production
+
+
+glyph_cols <- c(
+  "BO_OP_Acha",
+  "BO_OP_Maize",
+  "BO_OP_Millet",
+  "BO_OP_Rice",
+  "BO_OP_Sorghum",
+  "BO_OP_Wheat",
+  
+  "BO_OP_Cassava",
+  "BO_OP_Cocoyam",
+  "BO_OP_Ipotato",
+  "BO_OP_Plantain",
+  "BO_OP_Spotato",
+  "BO_OP_Yam",
+  
+  "BO_OP_Vegetables",
+  
+  "BO_OP_Beans",
+  "BO_OP_Cowpea",
+  "BO_OP_Gnuts",
+  "BO_OP_Soybean",
+  
+  "BO_OP_Dairy",
+  "BO_OP_Fish",
+  "BO_OP_Meat",
+  "BO_OP_Poultry",
+  "BO_OP_Shoat"
+  )
+
+ggplot(df_lz_geo) +
+  geom_spatvector(data = lz_geo, fill = "lightgrey", colour = "grey") +
+  geom_point(aes(x = centroid_x, y = centroid_y),  colour = "darkgrey") +
+  geom_tileglyph_af(
+    aes(x = centroid_x, y = centroid_y),
+    cols = glyph_cols,
+    fill.method = "binary",
+    fill.zero = "white",
+    size = 1.5,
+    alpha =  1,
+    nrow = 4,
+    colour = "grey", 
+    repel = TRUE, 
+    point.size = 10
+  )
+
+```
+
+# Diversity of food basket
+
+Get the number of items in the food basket for each Livelihood Zone
+
+```{r}
+#| label: food_basket_diversity
+#| message: false
+#| warning: false
+#| fig-cap: \'Better off\' household market purchase
+
+
+BO_MP_glyph_cols <- c(
+
+  "BO_MP_Shoat",
+  "BO_MP_Poultry",
+  "BO_MP_Meat",
+  "BO_MP_Fish",  
+  "BO_MP_Dairy",  
+  
+  "BO_MP_Beans",
+  "BO_MP_Cowpea",
+  "BO_MP_Gnuts",
+  "BO_MP_Soybean",
+  
+  "BO_MP_Vegetables",  
+  
+  "BO_MP_Yam",  
+  "BO_MP_Spotato",  
+  "BO_MP_Plantain",  
+  "BO_MP_Ipotato",
+  "BO_MP_Cocoyam",
+  "BO_MP_Cassava",
+  
+  "BO_MP_Wheat",
+  "BO_MP_Sorghum",
+  "BO_MP_Rice",
+  "BO_MP_Millet",
+  "BO_MP_Maize",
+  "BO_MP_Acha"
+  )
+
+
+lz_bo_mp <- all_sheets[["LZ_BO_MP"]]
+lz_bo_mp[is.na(lz_bo_mp)] <- 0
+
+lz_bo_mp |>
+  summarise_at(BO_MP_glyph_cols, sum, na.rm = TRUE)
+
+lz_bo_mp <- lz_bo_mp %>% 
+    rowwise() %>%
+    mutate(diversity = sum(c_across(all_of(BO_MP_glyph_cols))))  
+
+# Join CSV to SpatVector
+lz_geo_bo_mp <- merge(lz_geo, lz_bo_mp, by = "LZCODE")
+
+# Convert the SpatVector attributes to a data frame
+df_lz_geo_bo_mp <- as.data.frame(lz_geo_bo_mp)
+
+# Combine: add centroid x and y to the attribute data frame
+df_lz_geo_bo_mp$centroid_x <- lz_coords$x
+df_lz_geo_bo_mp$centroid_y <- lz_coords$y
+
+
+ggplot(df_lz_geo_bo_mp) +
+  geom_spatvector(data = lz_geo_bo_mp, aes(fill = diversity), colour = "grey") +
+  scale_fill_distiller(
+        type = "seq",
+        palette = "Blues",
+        direction = 1,
+        limits = c(0, 25),
+        guide = "legend"
+      ) +
+  geom_point(aes(x = centroid_x, y = centroid_y),  colour = "darkgrey") +
+  geom_tileglyph_af(
+    aes(x = centroid_x, y = centroid_y),
+    cols = BO_MP_glyph_cols,
+    fill.method = "binary",
+    fill.zero = "white",
+    size = 1.5,
+    alpha =  1,
+    nrow = 4,
+    colour = "grey",
+    fill.gradient = "NULL",
+    repel = TRUE, 
+    point.size = 10
+  )
+
+```
+
+
+Glyphs look promising (@fig-glyphtest).
+
+Biofortificaton is important [@abafe2025]
+
+
+::: {.callout-tip appearance="simple"}
+## Tip callout
+
+This is a tip callout
+:::
+
+## References {#sec-ref}
+
