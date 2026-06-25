@@ -1,0 +1,91 @@
+---
+title: "State level crop production"
+format: html
+bibliography: references.bib
+---
+
+```{r results='hide', warning=FALSE, echo=FALSE, message=FALSE}
+
+library(tidyverse)
+library(terra)
+library(tidyterra)
+library(readODS)
+library(ggplot2)
+
+
+```
+
+# Load the States
+
+```{r}
+#| label: states
+#| message: false
+#| warning: false
+
+vect_state_geo <- vect("D:/DatosProyecto/SpatialData/Africa/Pais/Nigeria/NGA Admin 2019-2025 OSGOF-Ehealth-UNCS/nga_admin1_topo.topojson")
+vect_state_geo$LZCODE <- as.factor(state_geo$adm1_pcode)
+levels(vect_state_geo$adm1_pcode) # Check levels
+plot(vect_state_geo, main = "Nigeria administrative level 1 boundaries (COD-AB)", levels=TRUE)
+
+ggplot(vect_state_geo)+
+  geom_spatvector(aes(fill = adm1_pcode)) +
+  geom_spatvector_text(aes(label = adm1_pcode), size = 3) +
+  theme_minimal()
+
+df_state <- as.data.frame(vect_state_geo)
+
+
+```
+
+
+
+# Load the Crop Production data
+
+## HarvestStat
+
+```{r}
+#| label: hstat_production_data
+#| message: false
+#| warning: false
+
+df_hstat <- read.csv("D:/DatosProyecto/SpatialData/Africa/Pais/Nigeria/HarvestStat/adm_crop_production_NG.csv")
+df_hstat$admin_1 <- as.factor(df_hstat$admin_1)
+levels(df_hstat$admin_1) # Check levels
+
+
+```
+
+The HarvestStat dataset does not contain codes for the states - only names.
+Therefore we need to join the two data frames using the name of the state - and checking that all states have data.
+
+```{r}
+#| label: hstat_name_join
+#| message: false
+#| warning: false
+
+df_state_production <- dplyr::left_join(df_state, df_hstat, by = c("adm1_name" = "admin_1"))
+str(df_state_production)
+
+```
+
+# Map results
+
+```{r}
+#| label: hstat_maptest
+#| message: false
+#| warning: false
+
+vect_maize_2023 <- dplyr::left_join(vect_state_geo, dplyr::filter(df_hstat, product == "maize", harvest_year == "2023", indicator             == "area"), by = c("adm1_name" = "admin_1"))
+
+df_maize_2023 <- as.data.frame(vect_maize)
+df_maize_2023
+
+
+ggplot(vect_maize_2023)+
+  geom_spatvector(aes(fill = area_sqkm)) +
+  geom_spatvector_text(aes(label = adm1_pcode), size = 3) +
+  
+  theme_minimal()
+
+```
+
