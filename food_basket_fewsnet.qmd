@@ -25,7 +25,7 @@ source("E:/repos/Biofort_Atlas_Nigeria/geom_tileglyph_function.R")
 #| message: false
 #| warning: false
 
-lz_geo <- vect("D:/DatosProyecto/SpatialData/Africa/Pais/Nigeria/FEWS NET LZ/NG_LHZ_2018/NG_LHZ_2018.shp")
+lz_geo <- vect("D:/DatosProyecto/SpatialData/Africa/Pais/Nigeria/FEWS NET LZ/NG_LHZ_2018/NG_LHZ_2018.topojson")
 lz_geo$LZCODE <- as.factor(lz_geo$LZCODE)
 levels(lz_geo$LZCODE) # Check levels
 plot(lz_geo, main = "FEWS NET 2018 Livelihood Zones", levels=TRUE)
