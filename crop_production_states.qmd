@@ -11,6 +11,7 @@ library(terra)
 library(tidyterra)
 library(readODS)
 library(ggplot2)
+library(ggtext)
 
 
 ```
@@ -23,7 +24,7 @@ library(ggplot2)
 #| warning: false
 
 vect_state_geo <- vect("D:/DatosProyecto/SpatialData/Africa/Pais/Nigeria/NGA Admin 2019-2025 OSGOF-Ehealth-UNCS/nga_admin1_topo.topojson")
-vect_state_geo$LZCODE <- as.factor(state_geo$adm1_pcode)
+vect_state_geo$adm1_pcode <- as.factor(vect_state_geo$adm1_pcode)
 levels(vect_state_geo$adm1_pcode) # Check levels
 plot(vect_state_geo, main = "Nigeria administrative level 1 boundaries (COD-AB)", levels=TRUE)
 
@@ -68,24 +69,461 @@ str(df_state_production)
 
 ```
 
-# Map results
+
+### Rice
 
 ```{r}
-#| label: hstat_maptest
+#| label: hstat_map_test_rice
 #| message: false
 #| warning: false
 
-vect_maize_2023 <- dplyr::left_join(vect_state_geo, dplyr::filter(df_hstat, product == "maize", harvest_year == "2023", indicator             == "area"), by = c("adm1_name" = "admin_1"))
+vect_rice_2023 <- dplyr::left_join(vect_state_geo, dplyr::filter(df_hstat, product == "Rice", harvest_year == "2023", indicator             == "area"), by = c("adm1_name" = "admin_1"))
 
-df_maize_2023 <- as.data.frame(vect_maize)
-df_maize_2023
+df_rice_2023 <- as.data.frame(vect_rice_2023)
+df_rice_2023
 
 
-ggplot(vect_maize_2023)+
-  geom_spatvector(aes(fill = area_sqkm)) +
-  geom_spatvector_text(aes(label = adm1_pcode), size = 3) +
-  
-  theme_minimal()
+ggplot(vect_rice_2023) +
+  geom_spatvector(aes(fill = value)) +
+  geom_spatvector_text(aes(label = adm1_pcode), size = 2) +
+  scale_fill_stepsn(
+      n.breaks = 10,
+      limits = c(0, 400000),
+      colours = hcl.colors(palette = "Grays", 10, rev = T),
+      guide = "legend",  na.value = "pink", labels = scales::comma
+    ) +
+  labs(
+    title = "Rice Production - 2023",
+    fill = "Cropped<br>Area (ha)") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
 
 ```
 
+### Maize
+
+```{r}
+#| label: hstat_map_test_maize
+#| message: false
+#| warning: false
+
+vect_maize_2023 <- dplyr::left_join(vect_state_geo, dplyr::filter(df_hstat, product == "Maize", harvest_year == "2023", indicator             == "area"), by = c("adm1_name" = "admin_1"))
+
+df_maize_2023 <- as.data.frame(vect_maize_2023)
+df_maize_2023
+
+
+ggplot(vect_maize_2023) +
+  geom_spatvector(aes(fill = value)) +
+  geom_spatvector_text(aes(label = adm1_pcode), size = 2) +
+  scale_fill_stepsn(
+      n.breaks = 10,
+      limits = c(0, 400000),
+      colours = hcl.colors(palette = "Grays", 10, rev = T),
+      guide = "legend",  na.value = "pink", labels = scales::comma
+    ) +
+  labs(
+    title = "Maize Production - 2023",
+    fill = "Cropped<br>Area (ha)") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+### Cassava
+
+```{r}
+#| label: hstat_map_test_cassava
+#| message: false
+#| warning: false
+
+vect_cassava_2023 <- dplyr::left_join(vect_state_geo, dplyr::filter(df_hstat, product == "Cassava", harvest_year == "2023", indicator == "area"), by = c("adm1_name" = "admin_1"))
+
+df_cassava_2023 <- as.data.frame(vect_cassava_2023)
+df_cassava_2023
+
+
+ggplot(vect_cassava_2023) +
+  geom_spatvector(aes(fill = value)) +
+  geom_spatvector_text(aes(label = adm1_pcode), size = 2) +
+  scale_fill_stepsn(
+      n.breaks = 10,
+      limits = c(0, 1000000),
+      colours = hcl.colors(palette = "Grays", 10, rev = T),
+      guide = "legend",  na.value = "pink", labels = scales::comma
+    ) +
+  labs(
+    title = "Cassava Production - 2023",
+    fill = "Cropped<br>Area (ha)") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+### Sweet Potato
+
+```{r}
+#| label: hstat_map_test_spotato
+#| message: false
+#| warning: false
+
+vect_spotato_2006 <- dplyr::left_join(vect_state_geo, dplyr::filter(df_hstat, product == "Sweet Potatoes", harvest_year == "2006", indicator == "area"), by = c("adm1_name" = "admin_1"))
+
+df_spotato_2006 <- as.data.frame(vect_spotato_2006)
+df_spotato_2006
+
+
+ggplot(vect_spotato_2006) +
+  geom_spatvector(aes(fill = value)) +
+  geom_spatvector_text(aes(label = adm1_pcode), size = 2) +
+  scale_fill_stepsn(
+      n.breaks = 10,
+      limits = c(0, 30000),
+      colours = hcl.colors(palette = "Grays", 10, rev = T),
+      guide = "legend",  na.value = "pink", labels = scales::comma
+    ) +
+  labs(
+    title = "Sweet Potato Production - 2006",
+    fill = "Cropped<br>Area (ha)") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+### Cowpea
+
+```{r}
+#| label: hstat_map_test_cowpea
+#| message: false
+#| warning: false
+
+vect_cowpea_2023 <- dplyr::left_join(vect_state_geo, dplyr::filter(df_hstat, product == "Cowpea", harvest_year == "2023", indicator == "area"), by = c("adm1_name" = "admin_1"))
+
+df_cowpea_2023 <- as.data.frame(vect_cowpea_2023)
+df_cowpea_2023
+
+
+ggplot(vect_cowpea_2023) +
+  geom_spatvector(aes(fill = value)) +
+  geom_spatvector_text(aes(label = adm1_pcode), size = 2) +
+  scale_fill_stepsn(
+      n.breaks = 10,
+      limits = c(0, 500000),
+      colours = hcl.colors(palette = "Grays", 10, rev = T),
+      guide = "legend",  na.value = "pink", labels = scales::comma
+    ) +
+  labs(
+    title = "Cowpea Production - 2023",
+    fill = "Cropped<br>Area (ha)") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+
+
+### Sorghum
+
+```{r}
+#| label: hstat_map_test_sorghum
+#| message: false
+#| warning: false
+
+vect_sorghum_2023 <- dplyr::left_join(vect_state_geo, dplyr::filter(df_hstat, product == "Sorghum", harvest_year == "2023", indicator == "area"), by = c("adm1_name" = "admin_1"))
+
+df_sorghum_2023 <- as.data.frame(vect_sorghum_2023)
+df_sorghum_2023
+
+
+ggplot(vect_sorghum_2023) +
+  geom_spatvector(aes(fill = value)) +
+  geom_spatvector_text(aes(label = adm1_pcode), size = 2) +
+  scale_fill_stepsn(
+      n.breaks = 10,
+      limits = c(0, 500000),
+      colours = hcl.colors(palette = "Grays", 10, rev = T),
+      guide = "legend",  na.value = "pink", labels = scales::comma
+    ) +
+  labs(
+    title = "Sorghum Production - 2023",
+    fill = "Cropped<br>Area (ha)") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+### Banana
+
+```{r}
+#| label: hstat_map_test_banana
+#| message: false
+#| warning: false
+
+vect_banana_2021 <- dplyr::left_join(vect_state_geo, dplyr::filter(df_hstat, product == "Banana", harvest_year == "2021", indicator == "area"), by = c("adm1_name" = "admin_1"))
+
+df_banana_2021 <- as.data.frame(vect_banana_2021)
+df_banana_2021
+
+
+ggplot(vect_banana_2021) +
+  geom_spatvector(aes(fill = value)) +
+  geom_spatvector_text(aes(label = adm1_pcode), size = 2) +
+  scale_fill_stepsn(
+      n.breaks = 10,
+      limits = c(0, 200000),
+      colours = hcl.colors(palette = "Grays", 10, rev = T),
+      guide = "legend",  na.value = "pink", labels = scales::comma
+    ) +
+  labs(
+    title = "Banana Production - 2021",
+    fill = "Cropped<br>Area (ha)") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+
+## NAERLS/FMAFS
+
+#### Rice
+
+```{r}
+#| label: naerls_rice_production
+#| message: false
+#| warning: false
+
+df_naerls_rice <- read.csv("D:/DatosProyecto/SpatialData/Africa/Pais/Nigeria/NAERLS Crop Stats 2024/Rice.csv")
+df_naerls_rice$State <- as.factor(df_naerls_rice$State)
+levels(df_naerls_rice$State) # Check levels
+
+vect_rice_2024 <- dplyr::left_join(vect_state_geo, df_naerls_rice, by = c("adm1_name" = "State"))
+
+df_rice_2024 <- as.data.frame(vect_rice_2024)
+df_rice_2024
+
+
+ggplot(vect_rice_2024) +
+  geom_spatvector(aes(fill = Area_Ha_2024)) +
+  geom_spatvector_text(aes(label = adm1_pcode), size = 2) +
+  scale_fill_stepsn(
+      n.breaks = 10,
+      limits = c(0, 500000),
+      colours = hcl.colors(palette = "Grays", 10, rev = T),
+      guide = "legend",  na.value = "pink", labels = scales::comma
+    ) +
+  labs(
+    title = "Rice Production - 2024",
+    fill = "Cropped<br>Area (ha)") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+#### Maize
+
+```{r}
+#| label: naerls_maize_production
+#| message: false
+#| warning: false
+
+df_naerls_maize <- read.csv("D:/DatosProyecto/SpatialData/Africa/Pais/Nigeria/NAERLS Crop Stats 2024/Maize.csv")
+df_naerls_maize$State <- as.factor(df_naerls_maize$State)
+levels(df_naerls_maize$State) # Check levels
+
+vect_maize_2024 <- dplyr::left_join(vect_state_geo, df_naerls_maize, by = c("adm1_name" = "State"))
+
+df_maize_2024 <- as.data.frame(vect_maize_2024)
+df_maize_2024
+
+
+ggplot(vect_maize_2024) +
+  geom_spatvector(aes(fill = Area_Ha_2024)) +
+  geom_spatvector_text(aes(label = adm1_pcode), size = 2) +
+  scale_fill_stepsn(
+      n.breaks = 10,
+      limits = c(0, 500000),
+      colours = hcl.colors(palette = "Grays", 10, rev = T),
+      guide = "legend",  na.value = "pink", labels = scales::comma
+    ) +
+  labs(
+    title = "Maize Production - 2024",
+    fill = "Cropped<br>Area (ha)") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+#### Cassava
+
+```{r}
+#| label: naerls_cassava_production
+#| message: false
+#| warning: false
+
+df_naerls_cassava <- read.csv("D:/DatosProyecto/SpatialData/Africa/Pais/Nigeria/NAERLS Crop Stats 2024/Cassava.csv")
+df_naerls_cassava$State <- as.factor(df_naerls_cassava$State)
+levels(df_naerls_cassava$State) # Check levels
+
+vect_cassava_2024 <- dplyr::left_join(vect_state_geo, df_naerls_cassava, by = c("adm1_name" = "State"))
+
+df_cassava_2024 <- as.data.frame(vect_cassava_2024)
+df_cassava_2024
+
+
+ggplot(vect_cassava_2024) +
+  geom_spatvector(aes(fill = Area_Ha_2024)) +
+  geom_spatvector_text(aes(label = adm1_pcode), size = 2) +
+  scale_fill_stepsn(
+      n.breaks = 10,
+      limits = c(0, 1000000),
+      colours = hcl.colors(palette = "Grays", 10, rev = T),
+      guide = "legend",  na.value = "pink", labels = scales::comma
+    ) +
+  labs(
+    title = "Cassava Production - 2024",
+    fill = "Cropped<br>Area (ha)") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+#### Cowpea
+
+```{r}
+#| label: naerls_cowpea_production
+#| message: false
+#| warning: false
+
+df_naerls_cowpea <- read.csv("D:/DatosProyecto/SpatialData/Africa/Pais/Nigeria/NAERLS Crop Stats 2024/Cowpea.csv")
+df_naerls_cowpea$State <- as.factor(df_naerls_cowpea$State)
+levels(df_naerls_cowpea$State) # Check levels
+
+vect_cowpea_2024 <- dplyr::left_join(vect_state_geo, df_naerls_cowpea, by = c("adm1_name" = "State"))
+
+df_cowpea_2024 <- as.data.frame(vect_cowpea_2024)
+df_cowpea_2024
+
+
+ggplot(vect_cowpea_2024) +
+  geom_spatvector(aes(fill = Area_Ha_2024)) +
+  geom_spatvector_text(aes(label = adm1_pcode), size = 2) +
+  scale_fill_stepsn(
+      n.breaks = 10,
+      limits = c(0, 1000000),
+      colours = hcl.colors(palette = "Grays", 10, rev = T),
+      guide = "legend",  na.value = "pink", labels = scales::comma
+    ) +
+  labs(
+    title = "Cowpea Production - 2024",
+    fill = "Cropped<br>Area (ha)") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+#### Sorghum
+
+```{r}
+#| label: naerls_sorghum_production
+#| message: false
+#| warning: false
+
+df_naerls_sorghum <- read.csv("D:/DatosProyecto/SpatialData/Africa/Pais/Nigeria/NAERLS Crop Stats 2024/Sorghum.csv")
+df_naerls_sorghum$State <- as.factor(df_naerls_sorghum$State)
+levels(df_naerls_sorghum$State) # Check levels
+
+vect_sorghum_2024 <- dplyr::left_join(vect_state_geo, df_naerls_sorghum, by = c("adm1_name" = "State"))
+
+df_sorghum_2024 <- as.data.frame(vect_sorghum_2024)
+df_sorghum_2024
+
+
+ggplot(vect_sorghum_2024) +
+  geom_spatvector(aes(fill = Area_Ha_2024)) +
+  geom_spatvector_text(aes(label = adm1_pcode), size = 2) +
+  scale_fill_stepsn(
+      n.breaks = 10,
+      limits = c(0, 500000),
+      colours = hcl.colors(palette = "Grays", 10, rev = T),
+      guide = "legend",  na.value = "pink", labels = scales::comma
+    ) +
+  labs(
+    title = "Sorghum Production - 2024",
+    fill = "Cropped<br>Area (ha)") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+#### Banana/Plantain
+
+```{r}
+#| label: naerls_plantain_banana_production
+#| message: false
+#| warning: false
+
+df_naerls_plantain_banana <- read.csv("D:/DatosProyecto/SpatialData/Africa/Pais/Nigeria/NAERLS Crop Stats 2024/Plantain_Banana.csv")
+df_naerls_plantain_banana$State <- as.factor(df_naerls_plantain_banana$State)
+levels(df_naerls_plantain_banana$State) # Check levels
+
+vect_plantain_banana_2024 <- dplyr::left_join(vect_state_geo, df_naerls_plantain_banana, by = c("adm1_name" = "State"))
+
+df_plantain_banana_2024 <- as.data.frame(vect_plantain_banana_2024)
+df_plantain_banana_2024
+
+
+ggplot(vect_plantain_banana_2024) +
+  geom_spatvector(aes(fill = Area_Ha_2024)) +
+  geom_spatvector_text(aes(label = adm1_pcode), size = 2) +
+  scale_fill_stepsn(
+      n.breaks = 10,
+      limits = c(0, 200000),
+      colours = hcl.colors(palette = "Grays", 10, rev = T),
+      guide = "legend",  na.value = "pink", labels = scales::comma
+    ) +
+  labs(
+    title = "Plantain/Banana Production - 2024",
+    fill = "Cropped<br>Area (ha)") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
