@@ -1,0 +1,60 @@
+---
+title: "Food Consumption"
+format: html
+bibliography: references.bib
+---
+
+```{r results='hide', warning=FALSE, echo=FALSE, message=FALSE}
+
+library(tidyverse)
+library(terra)
+library(tidyterra)
+library(readODS)
+library(ggplot2)
+library(ggtext)
+
+
+```
+
+# Load the States
+
+```{r}
+#| label: states
+#| message: false
+#| warning: false
+
+vect_state_geo <- vect("D:/DatosProyecto/SpatialData/Africa/Pais/Nigeria/NGA Admin 2019-2025 OSGOF-Ehealth-UNCS/nga_admin1_topo.topojson")
+vect_state_geo$adm1_pcode <- as.factor(vect_state_geo$adm1_pcode)
+levels(vect_state_geo$adm1_pcode) # Check levels
+plot(vect_state_geo, main = "Nigeria administrative level 1 boundaries (COD-AB)", levels=TRUE)
+
+ggplot(vect_state_geo)+
+  geom_spatvector(aes(fill = adm1_pcode)) +
+  geom_spatvector_text(aes(label = adm1_pcode), size = 3) +
+  theme_minimal()
+
+df_state <- as.data.frame(vect_state_geo)
+
+
+```
+
+```{r}
+#| label: geopolitical_zones
+#| message: false
+#| warning: false
+
+adm1_pcode <- c("NG001", "NG002", "NG003", "NG004", "NG005", "NG006", "NG007", "NG008", "NG009", "NG010", "NG011", "NG012", "NG013", "NG014", "NG015", "NG016", "NG017", "NG018", "NG019", "NG020", "NG021", "NG022", "NG023", "NG024", "NG025", "NG026", "NG027", "NG028", "NG029", "NG030", "NG031", "NG032", "NG033", "NG034", "NG035", "NG036", "NG037")
+
+geopolitical_zone<- c("South East", "North East", "South South", "South East", "North East", "South South", "North Central", "North East", "South South", "South South", "South East", "South South", "South West", "South East", "North Central", "North East", "South East", "North West", "North West", "North West", "North West", "North West", "North Central", "North Central", "South West", "North Central", "North Central", "South West", "South West", "South West", "South West", "North Central", "South South", "North West", "North East", "North East", "North West")
+
+df_gpz <- tibble(adm1_pcode, geopolitical_zone)
+
+vect_gpz_geo <- dplyr::left_join(vect_state_geo, df_gpz, by = c("adm1_pcode")) |> aggregate(by = "geopolitical_zone")
+
+ggplot(vect_gpz_geo)+
+  geom_spatvector(aes(fill = geopolitical_zone)) +
+  geom_spatvector_text(aes(label = geopolitical_zone), size = 3) +
+  theme_minimal()
+
+```
+
