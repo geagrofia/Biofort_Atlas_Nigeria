@@ -58,3 +58,170 @@ ggplot(vect_gpz_geo)+
 
 ```
 
+```{r}
+#| label: food_consumption_cassava
+#| message: false
+#| warning: false
+
+geopolitical_zone <- c("North Central", "North East", "North West", "South East", "South South",  "South West")
+
+# Percentage of respondents that consumed yellow cassava (or any food products made from it) the previous 30 days. Among non-pregnant women (15-49 years)
+bf_cass_vit_A_pc_cons <- c(2.7, 8.3, 1.0, 4.1, 3.5, 1.7)
+
+# Mean daily intake of biofortified yellow cassava (raw weight, grams) of women
+bf_cass_vit_A_daily <- c(0.40, 0.23, 0.62, 1.36, 6.33, 0.46)
+
+# Contribution of biofortified yellow Cassava to usual energy intakes of women
+bf_cass_vit_A_pc_energy <- c(1.24, 0.25, 0.17, 1.82, 0.56, 1.60)
+
+# Contribution of biofortified yellow cassava to usual Vitamin A intake of women
+bf_cass_vit_A_pc_vit_A <- c(0.20, 0.04, 0.05, 0.13, 0.05, 0.21)
+
+df_bf_cass_vit_A <- tibble(geopolitical_zone, bf_cass_vit_A_pc_cons, bf_cass_vit_A_daily, bf_cass_vit_A_pc_energy, bf_cass_vit_A_pc_vit_A)
+
+vect_gpz_geo_bf_cass_vit_A <- dplyr::left_join(vect_gpz_geo, df_bf_cass_vit_A, by = c("geopolitical_zone"))
+
+ggplot(vect_gpz_geo_bf_cass_vit_A) +
+  geom_spatvector(aes(fill = bf_cass_vit_A_pc_cons)) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 10),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Consumption of yellow cassava (or any food products made from it)<br>the previous 30 days. Among non-pregnant women (15-49 years)", fill = " % respondents") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+ggplot(vect_gpz_geo_bf_cass_vit_A) +
+  geom_spatvector(aes(fill = bf_cass_vit_A_daily)) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 10),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Mean daily intake of biofortified yellow cassava of women", fill = "Raw weight (g)") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+ggplot(vect_gpz_geo_bf_cass_vit_A) +
+  geom_spatvector(aes(fill = bf_cass_vit_A_pc_energy)) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 10),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Contribution of biofortified yellow Cassava to usual energy intakes of women", fill = "%") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+ggplot(vect_gpz_geo_bf_cass_vit_A) +
+  geom_spatvector(aes(fill = bf_cass_vit_A_pc_vit_A)) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 1),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Contribution of biofortified yellow cassava to usual Vitamin A intake of women", fill = "%") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+
+```{r}
+#| label: micronutrient_deficiency
+#| message: false
+#| warning: false
+
+geopolitical_zone <- c("North Central", "North East", "North West", "South East", "South South",  "South West")
+
+# Prevalence of vitamin A deficiency in women of reproductive age (WRA, aged 15-49 years), Nigeria 2021
+def_vit_A_pc <- c(6.2, 8.5, 22.2, 3.4, 12.0, 5.2)
+
+# Prevalence of iron deficiency and iron deficiency anemia in women of reproductive age (15-49 years), Nigeria 2021
+def_iron_pc <- c(9.1, 15.5, 9.1, 10.4, 12.2, 5.2)
+
+# Prevalence of zinc deficiency in women of reproductive age (WRA, aged 15-49 years), Nigeria 2021.
+def_zinc_pc <- c(20.3, 32.9, 60.3, 15.5, 28.0, 23.9)
+
+
+df_def <- tibble(geopolitical_zone, def_vit_A_pc, def_iron_pc, def_zinc_pc)
+
+vect_gpz_geo_def <- dplyr::left_join(vect_gpz_geo, df_def, by = c("geopolitical_zone"))
+
+ggplot(vect_gpz_geo_def) +
+  geom_spatvector(aes(fill = def_vit_A_pc)) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Prevalence of vitamin A deficiency in women of reproductive age", fill = " %") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+ggplot(vect_gpz_geo_def) +
+  geom_spatvector(aes(fill = def_iron_pc)) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Prevalence of iron deficiency in women of reproductive age", fill = "%") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+ggplot(vect_gpz_geo_def) +
+  geom_spatvector(aes(fill = def_zinc_pc)) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Prevalence of zinc deficiency in women of reproductive age", fill = "%") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
